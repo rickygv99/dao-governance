@@ -1,0 +1,11 @@
+type Proposal @entity {
+  id: ID!
+  votes: [Votes!]! @derivedFrom(field: "proposalID")
+}
+
+type Votes @entity {
+  id: ID!
+  voter: Bytes
+  single_vote: BigInt!
+  proposalID: Proposal! 
+}
