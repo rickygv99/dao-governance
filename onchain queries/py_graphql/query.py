@@ -42,7 +42,7 @@ for proposal in proposal_result:
     tmp[proposal_id]['blocktime'] = proposal['blocktime']
     for vote in proposal['votes']:
         max_vote += int(vote['single_vote'])
-    voting_rate = max_vote / 10**23
+    voting_rate = max_vote / 10**25
     tmp[proposal_id]['vote_rate'] = voting_rate
 
 print(tmp)
