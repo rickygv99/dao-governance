@@ -42,6 +42,15 @@ export class Proposal extends Entity {
     this.set("id", Value.fromString(value));
   }
 
+  get blocktime(): BigInt {
+    let value = this.get("blocktime");
+    return value!.toBigInt();
+  }
+
+  set blocktime(value: BigInt) {
+    this.set("blocktime", Value.fromBigInt(value));
+  }
+
   get votes(): Array<string> {
     let value = this.get("votes");
     return value!.toStringArray();
@@ -116,5 +125,63 @@ export class Votes extends Entity {
 
   set proposalID(value: string) {
     this.set("proposalID", Value.fromString(value));
+  }
+}
+
+export class Implementation extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save Implementation entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type Implementation must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+      );
+      store.set("Implementation", id.toString(), this);
+    }
+  }
+
+  static load(id: string): Implementation | null {
+    return changetype<Implementation | null>(store.get("Implementation", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value!.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get blocktime(): BigInt {
+    let value = this.get("blocktime");
+    return value!.toBigInt();
+  }
+
+  set blocktime(value: BigInt) {
+    this.set("blocktime", Value.fromBigInt(value));
+  }
+
+  get newImplementation(): Bytes | null {
+    let value = this.get("newImplementation");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set newImplementation(value: Bytes | null) {
+    if (!value) {
+      this.unset("newImplementation");
+    } else {
+      this.set("newImplementation", Value.fromBytes(<Bytes>value));
+    }
   }
 }

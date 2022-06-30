@@ -16,10 +16,15 @@ dataSources:
       entities:
         - Proposal
         - Votes
+        - Implementation
       abis:
         - name: GovernorBravoDelegator
           file: ./abis/GovernorBravoDelegator.json
       eventHandlers:
         - event: VoteCast(indexed address,uint256,uint8,uint256,string)
           handler: handleVoteCast
+        - event: NewImplementation(address,address)
+          handler: handleNewImplementation  
+        - event: ProposalCreated(uint256,address,address[],uint256[],string[],bytes[],uint256,uint256,string)
+          handler: handleProposalCreated
       file: ./src/governor-bravo-delegator.ts
