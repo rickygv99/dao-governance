@@ -15,8 +15,9 @@ dataSources:
       language: wasm/assemblyscript
       entities:
         - Proposal
-        - Votes
+        - Single_Vote
         - Implementation
+        - Voter
       abis:
         - name: GovernorBravoDelegator
           file: GovernorBravoDelegator/abis/GovernorBravoDelegator.json

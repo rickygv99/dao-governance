@@ -3,7 +3,7 @@ import {
     NewImplementation as NewImplementationEvent,
     ProposalCreated as ProposalCreatedEvent
 } from "../generated/GovernorBravoDelegator/GovernorBravoDelegator"
-import { Proposal, Votes, Implementation } from "../generated/schema"
+import { Proposal, Single_Vote, Voter, Implementation } from "../generated/schema"
 
 
 export function handleProposalCreated(event: ProposalCreatedEvent): void{
@@ -21,13 +21,14 @@ export function handleVoteCast(event: VoteCastEvent): void {
     let voterId = event.params.voter;
     let proposalId = event.params.proposalId;
 
-    let vote = Votes.load(proposalId.toHexString() + "-" + voterId.toHexString());
+    let vote = Single_Vote.load(proposalId.toHexString() + "-" + voterId.toHexString());
     if (vote == null){
-        vote = new Votes(proposalId.toHexString() + "-" + voterId.toHexString());
-        vote.voter = voterId;
+        vote = new Single_Vote(proposalId.toHexString() + "-" + voterId.toHexString());
+        vote.voter = voterId.toHexString();
         let single_vote = event.params.votes;
         vote.single_vote = single_vote;
         vote.proposalID = event.params.proposalId.toString();
+        vote.support = event.params.support;
     }
     vote.save();
 
@@ -35,10 +36,13 @@ export function handleVoteCast(event: VoteCastEvent): void {
     if (proposal == null){
         proposal = new Proposal(proposalId.toString());
     }
-
-    // proposal.voter = event.params.voter;
-    // proposal.votes = event.params.votes;
     proposal.save();
+
+    let voter = Voter.load(voterId.toHexString());
+    if (voter == null){
+        voter = new Voter(voterId.toHexString());
+    }
+    voter.save();
 }
 
 export function handleNewImplementation(event: NewImplementationEvent): void{

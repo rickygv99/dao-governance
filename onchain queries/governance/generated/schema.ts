@@ -61,7 +61,7 @@ export class Proposal extends Entity {
   }
 }
 
-export class Votes extends Entity {
+export class Single_Vote extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
@@ -69,18 +69,18 @@ export class Votes extends Entity {
 
   save(): void {
     let id = this.get("id");
-    assert(id != null, "Cannot save Votes entity without an ID");
+    assert(id != null, "Cannot save Single_Vote entity without an ID");
     if (id) {
       assert(
         id.kind == ValueKind.STRING,
-        `Entities of type Votes must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+        `Entities of type Single_Vote must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
       );
-      store.set("Votes", id.toString(), this);
+      store.set("Single_Vote", id.toString(), this);
     }
   }
 
-  static load(id: string): Votes | null {
-    return changetype<Votes | null>(store.get("Votes", id));
+  static load(id: string): Single_Vote | null {
+    return changetype<Single_Vote | null>(store.get("Single_Vote", id));
   }
 
   get id(): string {
@@ -92,21 +92,13 @@ export class Votes extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get voter(): Bytes | null {
+  get voter(): string {
     let value = this.get("voter");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBytes();
-    }
+    return value!.toString();
   }
 
-  set voter(value: Bytes | null) {
-    if (!value) {
-      this.unset("voter");
-    } else {
-      this.set("voter", Value.fromBytes(<Bytes>value));
-    }
+  set voter(value: string) {
+    this.set("voter", Value.fromString(value));
   }
 
   get single_vote(): BigInt {
@@ -125,6 +117,56 @@ export class Votes extends Entity {
 
   set proposalID(value: string) {
     this.set("proposalID", Value.fromString(value));
+  }
+
+  get support(): i32 {
+    let value = this.get("support");
+    return value!.toI32();
+  }
+
+  set support(value: i32) {
+    this.set("support", Value.fromI32(value));
+  }
+}
+
+export class Voter extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save Voter entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type Voter must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+      );
+      store.set("Voter", id.toString(), this);
+    }
+  }
+
+  static load(id: string): Voter | null {
+    return changetype<Voter | null>(store.get("Voter", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value!.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get votes(): Array<string> {
+    let value = this.get("votes");
+    return value!.toStringArray();
+  }
+
+  set votes(value: Array<string>) {
+    this.set("votes", Value.fromStringArray(value));
   }
 }
 
