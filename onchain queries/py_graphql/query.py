@@ -3,6 +3,9 @@ from gql.transport.aiohttp import AIOHTTPTransport
 import pickle
 import pandas as pd
 from flatten_json import flatten
+import os  
+os.makedirs('./csv', exist_ok=True)  
+
 # Select your transport with a defined url endpoint
 transport = AIOHTTPTransport(url="https://api.studio.thegraph.com/query/28876/governance/v0.2.5")
 
@@ -64,6 +67,17 @@ result = client.execute(query)
 #     break
 pd.set_option('display.max_colwidth', None)
 df_voters = pd.json_normalize(result,record_path=["voters", "votes"], meta=[['voters', 'id']])
+
+cols_to_move = ['voters.id', 'proposalID.id']
+df_voters = df_voters[ cols_to_move + [col for col in df_voters.columns if col not in cols_to_move ] ]
+
+df_voters.to_csv('./csv/compoundf.csv')
+
+df_voters['id_proposal'] = df_voters[["voters.id", "proposalID.id"]].apply(tuple,axis=1)
+df_voters['support_votes'] = df_voters[["support", "single_vote"]].apply(tuple,axis=1)
+df_voters = df_voters.drop(columns=['voters.id', 'proposalID.id', 'support', 'single_vote'])
+
+df_voters.to_csv('./csv/compound.csv')  
 
 with open('compound_matrix.pickle', 'wb') as f:
     pickle.dump(df_voters, f)
