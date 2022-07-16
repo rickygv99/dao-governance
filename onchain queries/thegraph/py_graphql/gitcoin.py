@@ -6,7 +6,7 @@ import os
 os.makedirs('./csv', exist_ok=True)  
 
 # Select your transport with a defined url endpoint
-transport = AIOHTTPTransport(url="https://api.studio.thegraph.com/query/28876/gitcoin/v0.0.1")
+transport = AIOHTTPTransport(url="https://api.studio.thegraph.com/query/28876/gitcoin/v0.0.2")
 
 # Create a GraphQL client using the defined transport
 client = Client(transport=transport, fetch_schema_from_transport=True)
@@ -74,8 +74,10 @@ for proposal in proposal_result:
     againstvote = round(int(proposal['againstvotes']) / 10**18, 3)
     forvotes.append(forvote)
     againstvotes.append(againstvotes)
-    vote_rate.append(round((forvote + againstvote) / 5*(10**7), 6))
+    vote_rate.append(round((forvote + againstvote) / (5*(10**7)), 6))
 
+df_voting_rates['id'] = df_voting_rates['id'].astype(int)
+df_voting_rates = df_voting_rates.sort_values(by=['id'], ascending=True)
 df_voting_rates['blocktime'] = df_voting_rates['blocktime'].map(lambda time: datetime.datetime.fromtimestamp(int(time)))
 df_voting_rates['vote_rate'] = vote_rate
 # df_voting_rates['forvotes'] = forvotes

@@ -3,10 +3,10 @@ from gql.transport.aiohttp import AIOHTTPTransport
 import datetime
 import pandas as pd
 import os  
-os.makedirs('./csv', exist_ok=True)  
+os.makedirs('./csv/pooltogether', exist_ok=True)  
 
 # Select your transport with a defined url endpoint
-transport = AIOHTTPTransport(url="https://api.studio.thegraph.com/query/28876/governance/v0.3.7")
+transport = AIOHTTPTransport(url="https://api.studio.thegraph.com/query/28876/pooltogether/v0.0.1")
 
 # Create a GraphQL client using the defined transport
 client = Client(transport=transport, fetch_schema_from_transport=True)
@@ -42,11 +42,6 @@ query = gql(
                 single_vote
             }
         }
-        implementations{
-            id
-            blocktime
-            newImplementation
-        }
     } 
     """
 )
@@ -61,13 +56,13 @@ df_voters = pd.json_normalize(result,record_path=["voters", "votes"], meta=[['vo
 cols_to_move = ['proposalID.id', 'voters.id']
 df_voters = df_voters[ cols_to_move + [col for col in df_voters.columns if col not in cols_to_move ] ]
 df_voters = df_voters.sort_values(by=['proposalID.id'], ascending=True)
-df_voters.to_csv('./csv/compoundf.csv')
+df_voters.to_csv('./csv/pooltogetherf.csv')
 
 # different format
 df_voters['id_proposal'] = df_voters[["voters.id", "proposalID.id"]].apply(tuple,axis=1)
 df_voters['support_votes'] = df_voters[["support", "single_vote"]].apply(tuple,axis=1)
 df_voters = df_voters.drop(columns=['voters.id', 'proposalID.id', 'support', 'single_vote'])
-df_voters.to_csv('./csv/compound.csv')  
+df_voters.to_csv('./csv/pooltogether.csv')  
 
 # Voting Rates
 proposal_result = result['proposals']
@@ -81,13 +76,13 @@ for proposal in proposal_result:
     againstvotes.append(againstvotes)
     vote_rate.append(round((forvote + againstvote) / 10**7, 6))
 
+df_voting_rates['id'] = df_voting_rates['id'].astype(int)
+df_voting_rates = df_voting_rates.sort_values(by=['id'], ascending=True)
 df_voting_rates['blocktime'] = df_voting_rates['blocktime'].map(lambda time: datetime.datetime.fromtimestamp(int(time)))
 df_voting_rates['vote_rate'] = vote_rate
 # df_voting_rates['forvotes'] = forvotes
 # df_voting_rates['againstvotes'] = againstvotes
 df_voting_rates = df_voting_rates.drop(columns=['forvotes', 'againstvotes'])
-
-
-df_voting_rates.to_csv('./csv/compound_voting_rates.csv')
+df_voting_rates.to_csv('./csv/pooltogether_voting_rates.csv')
 
 
